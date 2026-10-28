@@ -1,0 +1,197 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 1,
+      "title": "HYGIEA | Pipeline Fleet Telemetry & Anomaly Overview",
+      "type": "row"
+    },
+    {
+      "id": 2,
+      "title": "Active Critical Leak Alerts",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "format": "table",
+          "rawSql": "SELECT count(*) as active_leaks FROM incident_alerts WHERE severity = 'CRITICAL'",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Mean Fleet Differential Pressure (ΔP)",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bar",
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 0.35 },
+              { "color": "red", "value": 0.45 }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "format": "table",
+          "rawSql": "SELECT avg(differential_pressure_bar) FROM telemetry_stream",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Total Processed Telemetry Samples",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "#00ADB5" }
+        }
+      },
+      "targets": [
+        {
+          "format": "table",
+          "rawSql": "SELECT count(*) FROM telemetry_stream",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "System Operational Health",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "options": { "0": { "text": "ONLINE (HEALTHY)", "color": "green" }, "1": { "text": "ALERT (LEAK DETECTED)", "color": "red" } }, "type": "value" }
+          ]
+        }
+      },
+      "targets": [
+        {
+          "format": "table",
+          "rawSql": "SELECT CASE WHEN count(*) > 0 THEN 1 ELSE 0 END FROM incident_alerts WHERE severity = 'CRITICAL'",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Real-time Differential Pressure (ΔP) & Flow Gradient",
+      "type": "timeseries",
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 5 },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2
+          },
+          "unit": "bar"
+        }
+      },
+      "targets": [
+        {
+          "format": "time_series",
+          "rawSql": "SELECT timestamp as time, differential_pressure_bar as dp FROM telemetry_stream WHERE node_id = 'ZONE-01-MAIN' ORDER BY timestamp ASC",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Acoustic Cavitation & Vibration Z-Score Telemetry",
+      "type": "timeseries",
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 5 },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2
+          }
+        }
+      },
+      "targets": [
+        {
+          "format": "time_series",
+          "rawSql": "SELECT timestamp as time, z_score_acoustic FROM telemetry_stream WHERE node_id = 'ZONE-01-MAIN' ORDER BY timestamp ASC",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Critical Incident Log & Operator Audit Feed",
+      "type": "table",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 14 },
+      "targets": [
+        {
+          "format": "table",
+          "rawSql": "SELECT timestamp, node_id, alert_type, severity, confidence, alert_message FROM incident_alerts ORDER BY timestamp DESC LIMIT 50",
+          "refId": "A"
+        }
+      ]
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 36,
+  "style": "dark",
+  "tags": ["hygiea", "iot", "leak-detection", "telemetry"],
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timezone": "browser",
+  "title": "Hygiea Pipeline Leak Telemetry",
+  "uid": "hygiea-pipeline-overview"
+}

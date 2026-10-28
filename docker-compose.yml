@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  hygiea-engine:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: hygiea-engine
+    volumes:
+      - ./data:/app/data
+      - ./outputs:/app/outputs
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+
+  web-monitor:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: hygiea-web-monitor
+    command: ["streamlit", "run", "web_monitor/app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - hygiea-engine
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: hygiea-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    restart: unless-stopped

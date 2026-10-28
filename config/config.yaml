@@ -1,0 +1,68 @@
+# Hygiea: Enterprise Pipeline Leak & Telemetry Monitoring System Configuration
+# Author: Ahmad Fathin Naufal (UGM) - Big Data & Server Engineer
+
+system:
+  project_name: "hygiea-pipeline-leak-monitoring"
+  version: "1.0.0"
+  environment: "production"
+  random_seed: 42
+
+pipeline_zones:
+  - zone_id: "ZONE-01-MAIN"
+    name: "Hotel Main Inflow & Primary Riser A"
+    pipe_diameter_mm: 150
+    pipe_length_m: 85.0
+    nominal_inlet_pressure_bar: 4.80
+    nominal_outlet_pressure_bar: 4.52
+    nominal_flow_rate_m3h: 18.5
+    baseline_acoustic_db: 42.0
+    baseline_vibration_rms_g: 0.045
+
+  - zone_id: "ZONE-02-CHILLER"
+    name: "Hospitality HVAC Chiller Cooling Loop"
+    pipe_diameter_mm: 100
+    pipe_length_m: 60.0
+    nominal_inlet_pressure_bar: 4.20
+    nominal_outlet_pressure_bar: 3.95
+    nominal_flow_rate_m3h: 12.0
+    baseline_acoustic_db: 48.0
+    baseline_vibration_rms_g: 0.075
+
+  - zone_id: "ZONE-03-KITCHEN"
+    name: "Commercial Kitchen & Industrial Laundry Supply"
+    pipe_diameter_mm: 80
+    pipe_length_m: 45.0
+    nominal_inlet_pressure_bar: 3.80
+    nominal_outlet_pressure_bar: 3.58
+    nominal_flow_rate_m3h: 7.5
+    baseline_acoustic_db: 39.0
+    baseline_vibration_rms_g: 0.038
+
+  - zone_id: "ZONE-04-TOWER"
+    name: "Guest Tower Secondary Booster Return Riser"
+    pipe_diameter_mm: 125
+    pipe_length_m: 110.0
+    nominal_inlet_pressure_bar: 5.10
+    nominal_outlet_pressure_bar: 4.70
+    nominal_flow_rate_m3h: 14.0
+    baseline_acoustic_db: 44.0
+    baseline_vibration_rms_g: 0.052
+
+detection_thresholds:
+  z_score_acoustic_warning: 2.50
+  z_score_acoustic_critical: 3.20
+  z_score_vibration_critical: 3.00
+  differential_pressure_leak_drop_bar: 0.38
+  mass_balance_divergence_m3h: 0.28
+  sliding_window_size: 45
+
+simulation:
+  samples_per_node: 350  # 4 nodes * 350 = 1,400 total telemetry samples (>1,000 CV metric)
+  sample_frequency_sec: 1.0
+  micro_leak_probability: 0.05
+  pressure_surge_probability: 0.03
+
+storage:
+  sqlite_db_path: "data/processed/hygiea_telemetry.db"
+  csv_export_path: "data/processed/hygiea_telemetry_export.csv"
+  alerts_export_path: "data/processed/hygiea_incident_alerts.csv"

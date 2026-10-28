@@ -1,0 +1,2 @@
+total_samples,true_positives,false_positives,false_negatives,true_negatives,leak_recall,leak_precision,false_alarm_rate,accuracy
+1400,629,0,0,771,100.0,100.0,0.0,100.0
