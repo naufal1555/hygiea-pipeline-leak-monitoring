@@ -1,0 +1,72 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "project": "Hygiea - Smart Pipeline Leakage Monitoring System",
+    "author": "Ahmad Fathin Naufal (UGM) - Big Data & Server Engineer",
+    "description": "Azure Cloud Infrastructure ARM Template for IoT Telemetry Ingestion, Stream Analytics, and ADLS Gen2 Storage"
+  },
+  "parameters": {
+    "iotHubName": {
+      "type": "string",
+      "defaultValue": "hygiea-iothub-prod",
+      "metadata": { "description": "Azure IoT Hub for hotel pipeline telemetry ingestion" }
+    },
+    "storageAccountName": {
+      "type": "string",
+      "defaultValue": "hygieadatalakeprod",
+      "metadata": { "description": "Azure Data Lake Storage Gen2 (ADLS) for Hadoop integration" }
+    },
+    "streamAnalyticsJobName": {
+      "type": "string",
+      "defaultValue": "hygiea-stream-analytics-anomaly-job",
+      "metadata": { "description": "Real-time stream processing job for Darcy-Weisbach leak alerts" }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Devices/IotHubs",
+      "apiVersion": "2021-07-02",
+      "name": "[parameters('iotHubName')]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "S1",
+        "capacity": 1
+      },
+      "properties": {
+        "eventHubEndpoints": {
+          "events": {
+            "retentionTimeInDays": 7,
+            "partitionCount": 4
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-08-01",
+      "name": "[parameters('storageAccountName')]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Standard_RAGRS"
+      },
+      "kind": "StorageV2",
+      "properties": {
+        "isHnsEnabled": true,
+        "accessTier": "Hot"
+      }
+    },
+    {
+      "type": "Microsoft.StreamAnalytics/streamingjobs",
+      "apiVersion": "2020-03-01",
+      "name": "[parameters('streamAnalyticsJobName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "sku": { "name": "Standard" },
+        "eventsOutOfOrderPolicy": "Adjust",
+        "outputErrorPolicy": "Drop",
+        "eventsOutOfOrderMaxDelayInSeconds": 5
+      }
+    }
+  ]
+}

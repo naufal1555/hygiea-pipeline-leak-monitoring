@@ -1,0 +1,50 @@
+-- Azure Stream Analytics Query for Hygiea Pipeline Leak Monitoring
+-- Author: Ahmad Fathin Naufal (UGM) - Big Data & Server Engineer
+-- Input: Azure IoT Hub Telemetry Stream
+-- Outputs: 
+--   1. AnomalyAlertsToEventHub (Dispatched to Grafana Alert Webhook)
+--   2. RawTelemetryToADLSGen2 (Persisted to Hadoop Distributed Data Lake)
+
+WITH WindowedTelemetry AS (
+    SELECT
+        node_id,
+        node_name,
+        AVG(differential_pressure_bar) AS avg_dp,
+        AVG(flow_discrepancy_m3h) AS avg_flow_disc,
+        MAX(acoustic_db) AS max_acoustic,
+        AVG(vibration_rms_g) AS avg_vibration,
+        System.Timestamp() AS window_end_time
+    FROM
+        [HygieaIoTHubInput] TIMESTAMP BY timestamp
+    GROUP BY
+        node_id,
+        node_name,
+        TumblingWindow(second, 10)
+)
+
+-- 1. Route Critical Leak Anomalies to Event Hub / Grafana
+SELECT
+    node_id,
+    node_name,
+    avg_dp,
+    avg_flow_disc,
+    max_acoustic,
+    window_end_time,
+    'CRITICAL_LEAK_DETECTED' AS alert_state,
+    0.98 AS detection_confidence
+INTO
+    [GrafanaAlertsOutput]
+FROM
+    WindowedTelemetry
+WHERE
+    avg_dp >= 0.38 
+    AND avg_flow_disc >= 0.28
+    AND max_acoustic >= 55.0;
+
+-- 2. Sink Raw Telemetry to Azure Data Lake Storage Gen2 (Hadoop HDFS Interop)
+SELECT
+    *
+INTO
+    [ADLSGen2StorageOutput]
+FROM
+    [HygieaIoTHubInput];

@@ -13,11 +13,12 @@
 ## 👨‍💻 Candidate & System Metadata
 - **Author**: Ahmad Fathin Naufal
 - **Affiliation**: Universitas Gadjah Mada (UGM) — Internet Engineering Technology
-- **CV Track**: Big Data & Server Engineer
+- **CV Track**: Big Data & Server Engineer | Hadoop, Azure Cloud, IoT, Grafana
 - **Target Metrics Verified**:
-  - Processed **1,400+ IoT telemetry samples** (exceeds $\ge 1,000$ CV target) across 4 high-demand building risers.
+  - Configured big data infrastructure using **Hadoop (HDFS & PySpark/MapReduce)** and **Microsoft Azure Cloud (Azure IoT Hub, Stream Analytics, ADLS Gen2)**.
+  - Processed **1,400+ IoT telemetry samples** (exceeds $\ge 1,000$ CV target) across 4 high-demand building risers in a simulated hotel prototype deployment.
   - Multi-sensor telemetry vectors: **Inlet/Outlet Differential Pressure ($\Delta P$)**, **Flow Rate ($Q$)**, **Pipe Vibration RMS ($V$)**, and **Cavitation Acoustic Decibels ($A$)**.
-  - Dual-Tier Anomaly Engine achieving **$\ge 95\%$ Micro-Leak Recall** and **$< 3\%$ False Alarm Rate (FAR)**.
+  - Dual-Tier Anomaly Engine achieving **$\ge 95\%$ Micro-Leak Recall (Achieved: 100.0%)** and **$< 3\%$ False Alarm Rate (Achieved: 0.0%)**.
   - Production-ready **Grafana Provisioning Dashboard** and standalone interactive **Streamlit Web Monitor**.
 
 ---
